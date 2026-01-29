@@ -1,0 +1,2851 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Bilan mensuel - Poppins</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1f57a4",
+                        "primary-ink": "#0f2e5a",
+                        "primary-light": "#c5daf7",
+                        "primary-lighter": "#76a5e5",
+                        "background-light": "#f0f4fa",
+                        "neutral-light": "#f5f8ff",
+                        "neutral-medium": "#67768f",
+                        "neutral-dark": "#313a49",
+                        "green": "#4dca95",
+                        "green-light": "#8beac1",
+                        "red": "#e85219",
+                        "alert": "#ed4126",
+                    },
+                    fontFamily: {
+                        "display": ["Poppins", "sans-serif"]
+                    },
+                    boxShadow: {
+                        "poppins": "0 6px 16px rgba(25, 74, 144, 0.08), 0 2px 2px rgba(18, 52, 100, 0.02)",
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .nav-tab {
+            @apply text-sm font-medium text-white/60 hover:text-white transition-colors cursor-pointer;
+        }
+        .nav-tab.active {
+            @apply text-white font-semibold;
+        }
+        .bilan-item {
+            @apply px-4 py-2.5 rounded-xl cursor-pointer transition-all text-neutral-medium font-medium;
+        }
+        .bilan-item:not(.active) {
+            @apply hover:bg-white/50;
+        }
+        .bilan-item.active {
+            @apply bg-white shadow-sm text-primary-ink;
+        }
+        .mobile-bilan-item {
+            @apply px-4 py-3 rounded-xl cursor-pointer transition-all text-neutral-medium font-medium;
+        }
+        .mobile-bilan-item:not(.active) {
+            @apply hover:bg-white/50;
+        }
+        .mobile-bilan-item.active {
+            @apply bg-white shadow-sm text-primary-ink;
+        }
+        .month-card {
+            @apply bg-white rounded-2xl p-6 shadow-poppins;
+        }
+        .month-header {
+            @apply text-lg font-semibold mb-4 text-primary-ink;
+        }
+        .stat-row {
+            @apply flex justify-between items-center py-2;
+        }
+        .stat-label {
+            @apply text-sm text-neutral-medium;
+        }
+        .stat-value {
+            @apply font-semibold;
+        }
+        .competence-item {
+            @apply p-2 rounded-lg text-sm;
+        }
+        .competence-acquired {
+            @apply bg-green-light/30;
+        }
+        .competence-in-progress {
+            @apply bg-neutral-light;
+        }
+        .badge-grid {
+            @apply flex flex-wrap gap-3;
+        }
+        .badge-item {
+            @apply flex flex-col items-center text-center w-20;
+        }
+        .badge-item img {
+            @apply w-14 h-14 object-contain mb-1;
+        }
+        .badge-item-icon {
+            @apply flex flex-col items-center text-center w-20 p-2 bg-neutral-light rounded-xl;
+        }
+        .badge-label {
+            @apply text-xs text-neutral-medium leading-tight;
+        }
+        .message-content {
+            @apply space-y-3 text-sm text-neutral-medium;
+        }
+        .message-content p {
+            @apply leading-relaxed;
+        }
+        .message-signature {
+            @apply text-primary font-semibold italic pt-2;
+        }
+        .bilan-section {
+            display: none;
+        }
+        .bilan-section.active {
+            display: block;
+        }
+        /* Questionnaire Modal Styles */
+        body.modal-open {
+            overflow: hidden;
+        }
+        #comment-input:focus {
+            box-shadow: 0 0 0 3px rgba(31, 87, 164, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light text-primary-ink modal-open">
+
+<!-- ========== QUESTIONNAIRE MODAL ========== -->
+<div id="questionnaire-modal" class="fixed inset-0 z-[100] flex items-center justify-center">
+    <!-- Backdrop avec flou -->
+    <div id="modal-backdrop" class="absolute inset-0 bg-primary-ink/40 backdrop-blur-sm"></div>
+
+    <!-- Container de la modale -->
+    <div class="relative bg-white rounded-2xl shadow-poppins max-w-md w-full mx-4 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-primary text-white px-6 py-5">
+            <h2 class="text-lg font-semibold">Votre regard sur ce mois</h2>
+            <p class="text-sm text-white/80 mt-1">Avant d'obtenir votre rapport, faisons un petit point d'etape</p>
+        </div>
+
+        <!-- Indicateur de progression -->
+        <div class="px-6 pt-4">
+            <div class="flex items-center gap-2 text-sm text-neutral-medium mb-1">
+                <span id="step-indicator">Question 1/3</span>
+            </div>
+            <div class="w-full h-1.5 bg-background-light rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 33.33%"></div>
+            </div>
+        </div>
+
+        <!-- Container des questions -->
+        <div class="px-6 py-6">
+            <!-- Question 1: Observation -->
+            <div id="question-1" class="transition-opacity duration-200">
+                <p class="text-primary-ink font-semibold mb-4">Ce mois-ci, vous avez observe chez Dwight :</p>
+                <div class="flex flex-col gap-4">
+                    <label class="question-option block">
+                        <input type="radio" name="observation" value="progres-nets" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">🚀</span>
+                            <span class="text-sm font-medium text-primary-ink">Des progres nets</span>
+                        </div>
+                    </label>
+                    <label class="question-option block">
+                        <input type="radio" name="observation" value="legers-progres" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">📈</span>
+                            <span class="text-sm font-medium text-primary-ink">De legers progres</span>
+                        </div>
+                    </label>
+                    <label class="question-option block">
+                        <input type="radio" name="observation" value="pas-changement" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">➡️</span>
+                            <span class="text-sm font-medium text-primary-ink">Pas de changement</span>
+                        </div>
+                    </label>
+                    <label class="question-option block">
+                        <input type="radio" name="observation" value="difficultes" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">😓</span>
+                            <span class="text-sm font-medium text-primary-ink">Des difficultes</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 2: Lecture -->
+            <div id="question-2" class="transition-opacity duration-200 hidden">
+                <p class="text-primary-ink font-semibold mb-4">Les moments de lecture sont-ils plus sereins ?</p>
+                <div class="flex flex-col gap-4">
+                    <label class="question-option block">
+                        <input type="radio" name="lecture" value="oui" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">😊</span>
+                            <span class="text-sm font-medium text-primary-ink">Oui</span>
+                        </div>
+                    </label>
+                    <label class="question-option block">
+                        <input type="radio" name="lecture" value="non" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">😕</span>
+                            <span class="text-sm font-medium text-primary-ink">Non</span>
+                        </div>
+                    </label>
+                    <label class="question-option block">
+                        <input type="radio" name="lecture" value="pareil" class="sr-only peer">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-background-light cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary-light/20 hover:border-primary-lighter">
+                            <span class="text-2xl">🤷</span>
+                            <span class="text-sm font-medium text-primary-ink">Pareil qu'avant</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question 3: Commentaire (optionnel) -->
+            <div id="question-3" class="transition-opacity duration-200 hidden">
+                <p class="text-primary-ink font-semibold mb-2">Un mot sur le mois ?</p>
+                <p class="text-sm text-neutral-medium mb-4">Optionnel - partagez une observation, un moment marquant...</p>
+                <div class="relative">
+                    <textarea
+                        id="comment-input"
+                        name="comment"
+                        rows="4"
+                        maxlength="280"
+                        placeholder="Ex: Dwight a adore les jeux de syllabes cette semaine..."
+                        class="w-full px-4 py-3 rounded-xl border-2 border-background-light focus:border-primary focus:outline-none resize-none text-sm text-primary-ink placeholder:text-neutral-medium/50"
+                    ></textarea>
+                    <span id="char-count" class="absolute bottom-3 right-3 text-xs text-neutral-medium">0/280</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer avec boutons de navigation -->
+        <div class="px-6 pb-6 flex justify-between items-center">
+            <button id="btn-back" class="text-sm text-neutral-medium hover:text-primary-ink transition-colors hidden">
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Retour
+                </span>
+            </button>
+            <div class="flex-1"></div>
+            <button id="btn-next" class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-ink transition-colors shadow-poppins disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <span id="btn-next-text">Suivant</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== HEADER POPPINS ========== -->
+<!-- Barre de navigation blanche (sticky) -->
+<header class="bg-white sticky top-0 z-50 shadow-sm h-[73px]">
+    <div class="max-w-[1440px] mx-auto px-6 lg:px-[204px] h-full flex items-center justify-between">
+        <!-- Logo POPPINS stylisé -->
+        <div class="flex items-center text-primary">
+            <span class="text-xl font-black tracking-tight">P</span><span class="text-xl font-black tracking-tight text-primary">❋</span><span class="text-xl font-black tracking-tight">PPINS</span>
+        </div>
+
+        <!-- Navigation + User -->
+        <div class="flex items-center gap-8">
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#" class="text-primary text-sm font-semibold hover:underline">Accueil</a>
+                <a href="#" class="text-primary text-sm font-semibold hover:underline">Poppins Club</a>
+                <a href="#" class="text-primary text-sm font-semibold hover:underline">Aide</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <div class="relative cursor-pointer">
+                    <span class="material-symbols-outlined text-primary">notifications</span>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-alert text-white text-[10px] rounded-full flex items-center justify-center font-bold">2</span>
+                </div>
+                <div class="flex items-center gap-2 text-primary cursor-pointer hover:text-primary-ink">
+                    <span class="material-symbols-outlined">person</span>
+                    <span class="text-sm font-semibold">Delphine</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Bandeau bleu (subheader) -->
+<div class="bg-primary text-white">
+    <div class="max-w-[1440px] mx-auto px-6 lg:px-[204px] py-12">
+        <div class="flex items-center justify-between">
+            <h1 class="text-[32px] lg:text-[40px] font-light leading-tight">
+                Bonjour <span class="font-semibold">Sophie</span>
+            </h1>
+            <div class="flex items-center gap-2 bg-white text-primary-ink pl-2 pr-3 py-2 rounded-full cursor-pointer shadow-poppins hover:shadow-lg transition-shadow">
+                <div class="w-8 h-8 rounded-full bg-neutral-light overflow-hidden flex items-center justify-center">
+                    <img src="https://em-content.zobj.net/source/apple/391/boy_1f466.png" alt="Avatar Dwight" class="w-7 h-7 object-cover">
+                </div>
+                <span class="font-semibold text-sm">Dwight</span>
+                <span class="material-symbols-outlined text-sm text-neutral-medium">expand_more</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barre d'onglets sticky -->
+<div class="bg-primary text-white sticky top-[73px] z-40 pt-4">
+    <div class="max-w-[1440px] mx-auto px-6 lg:px-[204px]">
+        <nav class="flex items-end gap-6">
+            <span class="nav-tab pb-3 border-b-2 border-transparent">Coup d'œil</span>
+            <span class="nav-tab pb-3 border-b-2 border-transparent">Langage écrit</span>
+            <span class="nav-tab pb-3 border-b-2 border-transparent">Rythme</span>
+            <span class="nav-tab pb-3 border-b-2 border-transparent">Lecture</span>
+            <span class="nav-tab active pb-3 border-b-2 border-white">Bilan mensuel</span>
+        </nav>
+    </div>
+</div>
+
+<!-- ========== CONTENU PRINCIPAL ========== -->
+<div class="max-w-[1440px] mx-auto px-6 lg:px-[204px]">
+    <div class="flex">
+
+        <!-- Sidebar : Liste des bilans (sticky) - masquee sur mobile -->
+        <aside class="hidden md:block w-56 pt-6 pb-6 pr-6 flex-shrink-0 sticky top-[118px] self-start h-fit">
+            <nav class="bg-[#E5ECF5] rounded-2xl p-1.5 space-y-1">
+            <div class="bilan-item active" data-month="janvier-2026">
+                <div class="flex items-center gap-2">
+                    <p class="font-medium">Janvier 2026</p>
+                    <span class="bg-green text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">new</span>
+                </div>
+            </div>
+            <div class="bilan-item" data-month="decembre-2025">
+                <p class="font-medium">Décembre 2025</p>
+            </div>
+            <div class="bilan-item" data-month="novembre-2025">
+                <p class="font-medium">Novembre 2025</p>
+            </div>
+            <div class="bilan-item" data-month="octobre-2025">
+                <p class="font-medium">Octobre 2025</p>
+            </div>
+            <div class="bilan-item" data-month="septembre-2025">
+                <p class="font-medium">Septembre 2025</p>
+            </div>
+            <div class="bilan-item" data-month="aout-2025">
+                <p class="font-medium">Août 2025</p>
+            </div>
+            </nav>
+        </aside>
+
+        <!-- Zone principale : Contenu du bilan -->
+        <main class="flex-1 py-6 md:pl-6 md:border-l border-background-light">
+
+        <!-- En-tête du bilan -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-semibold text-primary-ink" id="bilan-title">Bilan de Janvier 2026</h2>
+                <p class="text-neutral-medium text-sm">Dwight - CE1</p>
+            </div>
+            <button id="download-pdf" class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-ink transition-colors shadow-poppins">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                Télécharger PDF
+            </button>
+        </div>
+
+        <!-- Contenu du bilan -->
+        <div class="w-full max-w-4xl space-y-6">
+
+            <!-- Bilan Janvier 2026 -->
+            <div id="bilan-janvier-2026" class="bilan-section active space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">5h 20min</span>
+                        <span class="text-green text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +2h30
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-green">133%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-green rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">160</p>
+                            <p class="text-xs text-green font-semibold">+75</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">17</p>
+                            <p class="text-xs text-green font-semibold">+6</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">6</p>
+                            <p class="text-xs text-green font-semibold">+3</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="60.8" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">78%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="4.5" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">97%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="18.1" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">88%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="57.3" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">62%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="78.4" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">48%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">12 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_AI.png" alt="Badge ai" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "ai"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_OI.png" alt="Badge oi" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "oi"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_OU.png" alt="Badge ou" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "ou"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_IN.png" alt="Badge in" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "in"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_AN.png" alt="Badge an" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "an"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_EU.png" alt="Badge eu" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "eu"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_AI.png" alt="Badge ai écrit" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "ai"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecoute_SON_2.png" alt="Badge sons" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Sons niv.2</span>
+                        </div>
+                        <div class="badge-item-icon">
+                            <span class="material-symbols-outlined text-3xl text-green-500 mb-1">music_note</span>
+                            <span class="badge-label">Rythme</span>
+                        </div>
+                        <div class="badge-item-icon">
+                            <span class="material-symbols-outlined text-3xl text-green-500 mb-1">timer</span>
+                            <span class="badge-label">Tempo</span>
+                        </div>
+                        <div class="badge-item-icon">
+                            <span class="material-symbols-outlined text-3xl text-green-500 mb-1">auto_stories</span>
+                            <span class="badge-label">Lecture</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+1</span>
+                            <span class="badge-label">badge</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences groupées par statut -->
+                    <div class="space-y-4">
+
+                        <!-- GROUPE : Acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-green uppercase tracking-wide py-2 border-b border-background-light">
+                                Acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "an et en"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "in"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : À revoir -->
+                        <div>
+                            <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide py-2 border-b border-background-light">
+                                À revoir
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "oi"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : Non acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-red uppercase tracking-wide py-2 border-b border-background-light">
+                                Non acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecris - </span><span class="font-medium text-primary-ink">Distinguer "s" et "ss"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots irreguliers</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : En cours -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Sons "ein" et "ain"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "on"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Test du 20 janvier 2026</p>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value text-primary">Niveau 2</span>
+                            <span class="text-neutral-medium text-sm">=</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Vitesse</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">52.3 mots/min</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +4.2
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Précision</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">89%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Compréhension</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">100%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +5%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-green-light/30 rounded-lg text-green text-xs font-semibold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        Progression en fluence (+4.2 mots/min)
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div id="votre-regard-content">
+                        <!-- Contenu rempli par JavaScript apres le questionnaire -->
+                        <p class="text-sm text-neutral-medium">Chargement...</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Bravo ! Dwight a joué plus de 5 heures ce mois-ci dans Poppins, sur 17 jours d'entraînement.</p>
+                        <p>Les résultats sont au rendez-vous : 8 compétences validées dans Poppins et une progression en fluence de +7 mots par minute.</p>
+                        <p>Continuez sur cette lancée, c'est parfait !</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bilan Décembre 2025 -->
+            <div id="bilan-decembre-2025" class="bilan-section space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">2h 50min</span>
+                        <span class="text-red text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">trending_down</span>
+                            -1h55
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-orange-400">71%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-orange-400 rounded-full" style="width: 71%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">85</p>
+                            <p class="text-xs text-red font-semibold">-57</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">11</p>
+                            <p class="text-xs text-red font-semibold">-7</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">3</p>
+                            <p class="text-xs text-red font-semibold">-2</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="96.8" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">65%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="15.1" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">90%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="33.2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">78%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="75.4" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">50%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="93.5" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">38%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">5 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_OI.png" alt="Badge oi" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "oi"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_IEN.png" alt="Badge ien" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "ien"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris1_AN-EN.png" alt="Badge an-en" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Distinction an/en</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+2</span>
+                            <span class="badge-label">autres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    <div class="space-y-4">
+                        <!-- GROUPE : Acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-green uppercase tracking-wide py-2 border-b border-background-light">
+                                Acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "an et en"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "in"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : À revoir -->
+                        <div>
+                            <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide py-2 border-b border-background-light">
+                                À revoir
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "oi"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : Non acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-red uppercase tracking-wide py-2 border-b border-background-light">
+                                Non acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecris - </span><span class="font-medium text-primary-ink">Distinguer "s" et "ss"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : En cours -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots irreguliers</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Sons "ein" et "ain"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Pas de test ce mois-ci</p>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Aucun test de fluence réalisé en décembre</p>
+                        <p class="text-xs text-neutral-medium mt-1">Vacances de Noël</p>
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Non disponible ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Dwight a maintenu ses acquis dans Poppins pendant les vacances de Noël.</p>
+                        <p>Avec 11 jours de jeu et 5 badges gagnés, il a continué à s'entraîner dans Poppins malgré le rythme des fêtes. Ses acquis sont maintenus.</p>
+                        <p>Les vacances sont faites pour se reposer. Dès janvier, il reprendra son rythme habituel avec toute son énergie retrouvée.</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autres bilans (placeholder) -->
+            <!-- Bilan Novembre 2025 -->
+            <div id="bilan-novembre-2025" class="bilan-section space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">4h 45min</span>
+                        <span class="text-green text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +40min
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-green">119%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-green rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">142</p>
+                            <p class="text-xs text-green font-semibold">+20</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">18</p>
+                            <p class="text-xs text-green font-semibold">+3</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">5</p>
+                            <p class="text-xs text-green font-semibold">+1</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="132.7" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">52%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="33.2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">78%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="52.8" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">65%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="93.5" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">38%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="108.6" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">28%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">10 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_IN.png" alt="Badge in" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "in"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_OI.png" alt="Badge oi" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "oi"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_OU.png" alt="Badge ou" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "ou"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecoute_SON_2.png" alt="Badge sons 2" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Sons niv.2</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_ON.png" alt="Badge on" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "on"</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+5</span>
+                            <span class="badge-label">autres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    <div class="space-y-4">
+                        <!-- GROUPE : Acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-green uppercase tracking-wide py-2 border-b border-background-light">
+                                Acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "an et en"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : À revoir -->
+                        <div>
+                            <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide py-2 border-b border-background-light">
+                                À revoir
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "in"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : En cours -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "oi"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecris - </span><span class="font-medium text-primary-ink">Distinguer "s" et "ss"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Test du 21 novembre 2025</p>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value text-primary">Niveau 2</span>
+                            <span class="text-neutral-medium text-sm">=</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Vitesse</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">48.1 mots/min</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3.3
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Précision</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">86%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +2%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Compréhension</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">95%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +5%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-green-light/30 rounded-lg text-green text-xs font-semibold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        Progression en fluence (+3.3 mots/min)
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Non disponible ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Dwight a été très actif ce mois-ci dans Poppins !</p>
+                        <p>Avec 4h45 de jeu réparties sur 18 jours (dont 5 jours consécutifs), il a gagné 10 badges et acquis 4 compétences dans Poppins. Sa fluence atteint 48,1 mots/min, soit +3,3 par rapport à octobre.</p>
+                        <p>Cette régularité lui permet de progresser à son rythme dans Poppins. Continuez à célébrer chaque étape avec lui.</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Bilan Octobre 2025 -->
+            <div id="bilan-octobre-2025" class="bilan-section space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">4h 05min</span>
+                        <span class="text-green text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +35min
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-green">102%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-green rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">122</p>
+                            <p class="text-xs text-green font-semibold">+17</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">15</p>
+                            <p class="text-xs text-green font-semibold">+2</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">4</p>
+                            <p class="text-xs text-green font-semibold">+1</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="165.9" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">40%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="57.3" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">62%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="75.4" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">50%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="108.6" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">28%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="120.6" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">20%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">8 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_EU.png" alt="Badge eu" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "eu"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_AN.png" alt="Badge an" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "an"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecoute_SYLL-2.png" alt="Badge syllabes 2" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Syllabes niv.2</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_AI.png" alt="Badge ai" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture "ai"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_IN.png" alt="Badge in" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "in"</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+3</span>
+                            <span class="badge-label">autres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    <div class="space-y-4">
+                        <!-- GROUPE : Acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-green uppercase tracking-wide py-2 border-b border-background-light">
+                                Acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : À revoir -->
+                        <div>
+                            <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide py-2 border-b border-background-light">
+                                À revoir
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : En cours -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "an et en"</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "in"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Test du 18 octobre 2025</p>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value text-primary">Niveau 1</span>
+                            <span class="text-neutral-medium text-sm">=</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Vitesse</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">44.8 mots/min</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3.6
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Précision</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">84%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Compréhension</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">92%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +2%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-green-light/30 rounded-lg text-green text-xs font-semibold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        Progression en fluence (+3.6 mots/min)
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Non disponible ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Félicitations ! Dwight a atteint son objectif mensuel dans Poppins pour la première fois.</p>
+                        <p>Avec 4h05 de jeu sur 15 jours, il a acquis deux compétences dans Poppins (Alphabet et Syllabes). Sa fluence progresse : 44,8 mots/min, soit +3,6 ce mois-ci.</p>
+                        <p>Ce cap franchi montre que la régularité porte ses fruits. Dwight peut être fier de son parcours.</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Bilan Septembre 2025 -->
+            <div id="bilan-septembre-2025" class="bilan-section space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">3h 30min</span>
+                        <span class="text-green text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +45min
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-orange-400">88%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-orange-400 rounded-full" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">105</p>
+                            <p class="text-xs text-green font-semibold">+23</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">13</p>
+                            <p class="text-xs text-green font-semibold">+3</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">3</p>
+                            <p class="text-xs text-green font-semibold">+1</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="199.1" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">28%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="82.9" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">45%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="98.0" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">35%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="123.7" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">18%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="132.7" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">12%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">6 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecoute_SON_1.png" alt="Badge sons" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écoute sons</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_AU.png" alt="Badge au" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "au"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_SYLLABES.png" alt="Badge syllabes" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écriture syllabes</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_ET.png" alt="Badge et" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "et"</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+2</span>
+                            <span class="badge-label">autres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    <div class="space-y-4">
+                        <!-- GROUPE : Acquis -->
+                        <div>
+                            <div class="text-xs font-semibold text-green uppercase tracking-wide py-2 border-b border-background-light">
+                                Acquis
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                        </span>
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUPE : En cours -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">J'ecoute - </span><span class="font-medium text-primary-ink">Son "an et en"</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Test du 22 septembre 2025</p>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value text-primary">Niveau 1</span>
+                            <span class="text-neutral-medium text-sm">=</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Vitesse</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">41.2 mots/min</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +2.7
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Précision</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">81%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Compréhension</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">90%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                +5%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-green-light/30 rounded-lg text-green text-xs font-semibold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        Progression en fluence (+2.7 mots/min)
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Non disponible ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Dwight installe progressivement sa routine d'entraînement. Bravo pour cette régularité naissante !</p>
+                        <p>Avec 13 jours de jeu et 3h30 d'entraînement, il a acquis sa première compétence dans Poppins : l'Alphabet. Sa fluence progresse : 41,2 mots/min, soit +2,7 par rapport à août.</p>
+                        <p>Continuez à l'encourager : chaque session dans Poppins compte pour ancrer ses apprentissages.</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Bilan Août 2025 -->
+            <div id="bilan-aout-2025" class="bilan-section space-y-6">
+
+                <!-- Temps d'entraînement -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">schedule</span>
+                        Temps d'entraînement
+                    </h3>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-semibold text-primary">2h 45min</span>
+                        <span class="text-green text-sm font-semibold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">flag</span>
+                            initial
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs text-neutral-medium mb-1">
+                            <span>Objectif : 4h</span>
+                            <span class="font-semibold text-orange-400">69%</span>
+                        </div>
+                        <div class="w-full h-2 bg-background-light rounded-full">
+                            <div class="h-full bg-orange-400 rounded-full" style="width: 69%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
+                        <div class="text-center">
+                            <span class="text-xl">🎮</span>
+                            <p class="text-xl font-semibold">82</p>
+                            <p class="text-xs text-green font-semibold">initial</p>
+                            <p class="text-xs text-neutral-medium">Jeux</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">📅</span>
+                            <p class="text-xl font-semibold">10</p>
+                            <p class="text-xs text-green font-semibold">initial</p>
+                            <p class="text-xs text-neutral-medium">Jours</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xl">🔥</span>
+                            <p class="text-xl font-semibold">2</p>
+                            <p class="text-xs text-green font-semibold">initial</p>
+                            <p class="text-xs text-neutral-medium">Série max</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progression dans le programme -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">trending_up</span>
+                        Progression dans le programme
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <!-- Cercle Global (gauche) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
+                                            stroke-dasharray="276.5" stroke-dashoffset="235.0" stroke-linecap="round"/>
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">15%</span>
+                            </div>
+                            <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
+                        </div>
+                        <!-- Séparateur -->
+                        <div class="w-px h-20 bg-gray-200"></div>
+                        <!-- 4 cercles axes (droite) -->
+                        <div class="flex-1 grid grid-cols-4 gap-1">
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="113.1" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">25%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écoute</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="123.7" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">18%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je lis</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="138.7" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">8%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">J'écris</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-14 h-14">
+                                    <svg class="w-full h-full -rotate-90">
+                                        <circle cx="28" cy="28" r="24" stroke="#e5e7eb" stroke-width="5" fill="none"/>
+                                        <circle cx="28" cy="28" r="24" stroke="#10b981" stroke-width="5" fill="none"
+                                                stroke-dasharray="150.8" stroke-dashoffset="143.3" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">5%</span>
+                                </div>
+                                <span class="mt-1 text-xs text-gray-600 dark:text-gray-400">Je comprends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">emoji_events</span>
+                        Badges obtenus
+                    </h3>
+                    <p class="text-sm text-primary font-bold mb-3">4 badges ce mois</p>
+                    <div class="badge-grid">
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecoute_SYLL.png" alt="Badge syllabes" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Écoute syllabes</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jelis_AI.png" alt="Badge ai" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Lecture "ai"</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="Poppins_badges/jecris_MOTSIMPLE.png" alt="Badge mots simples" class="w-14 h-14 object-contain mb-1">
+                            <span class="badge-label">Mots simples</span>
+                        </div>
+                        <div class="badge-item-icon bg-gray-100 rounded-lg">
+                            <span class="text-2xl font-bold text-neutral-medium">+1</span>
+                            <span class="badge-label">autre</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Compétences travaillées
+                    </h3>
+
+                    <!-- Légende -->
+                    <div class="flex items-center gap-6 mb-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">Acquis</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                            </span>
+                            <span class="text-neutral-medium">À revoir</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-red flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-[14px]">priority_high</span>
+                            </span>
+                            <span class="text-neutral-medium">Non acquis</span>
+                        </div>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    <div class="space-y-4">
+                        <!-- GROUPE : En cours (premier mois, tout est en cours) -->
+                        <div>
+                            <div class="text-xs font-semibold text-neutral-medium uppercase tracking-wide py-2 border-b border-background-light">
+                                En cours
+                            </div>
+                            <div class="divide-y divide-background-light">
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Alphabet</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Syllabes</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between py-3">
+                                    <div class="flex items-center gap-3">
+                                        <span><span class="text-neutral-medium">Je lis - </span><span class="font-medium text-primary-ink">Mots simples</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluence -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Score de fluence
+                    </h3>
+                    <p class="text-xs text-neutral-medium mb-2">Test initial du 25 août 2025</p>
+                    <div class="stat-row">
+                        <span class="stat-label">Niveau</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value text-primary">Niveau 1</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                initial
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Vitesse</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">38.5 mots/min</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                initial
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Précision</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">78%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                initial
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Compréhension</span>
+                        <div class="flex items-center gap-2">
+                            <span class="stat-value">85%</span>
+                            <span class="text-green text-sm flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                                initial
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-primary-light/30 rounded-lg text-primary text-xs font-semibold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">flag</span>
+                        Point de départ pour suivre les progrès
+                    </div>
+                </div>
+
+                <!-- Votre regard -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Votre regard
+                    </h3>
+                    <div class="p-4 bg-background-light rounded-lg text-center">
+                        <span class="material-symbols-outlined text-3xl text-neutral-medium mb-2">event_busy</span>
+                        <p class="text-sm text-neutral-medium">Non disponible ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="month-card">
+                    <h3 class="month-header flex items-center gap-2">
+                        <span class="material-symbols-outlined">chat</span>
+                        Message de l'équipe Poppins
+                    </h3>
+                    <div class="message-content">
+                        <p>Dwight a fait ses premiers pas dans Poppins ce mois-ci !</p>
+                        <p>Avec 4 badges gagnés et 10 jours de jeu, il a commencé à explorer l'Alphabet, les Syllabes et les Mots simples dans Poppins. Son test de fluence initial (38,5 mots/min) servira de point de départ pour suivre sa progression.</p>
+                        <p>Les vacances sont propices à l'exploration. Le mois prochain, une routine plus régulière l'aidera à progresser dans Poppins.</p>
+                        <p class="message-signature">L'équipe Poppins</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+            <!-- Section En savoir plus -->
+            <section class="mt-12 pt-8 border-t border-background-light">
+                <h3 class="text-lg font-semibold text-primary-ink mb-6">En savoir plus</h3>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Colonne 1: Les axes de travail -->
+                    <div>
+                        <h4 class="font-semibold text-primary-ink mb-4">Les axes de travail</h4>
+                        <div class="space-y-4 text-sm text-neutral-medium leading-relaxed">
+                            <div>
+                                <span class="font-semibold text-primary-ink">Je lis</span> — Cet axe correspond aux compétences en lecture. À partir du code alphabétique, le lecteur reconnaît un mot donné en convertissant l'information visuelle (les <strong>graphèmes</strong>) en information sonore (les <strong>phonèmes</strong>).
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">J'écoute</span> — L'enfant apprend ici à découper les mots en unités sonores que sont la syllabe puis le phonème. C'est une compétence essentielle à la bonne mise en place de la lecture.
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">J'écris</span> — Cet axe correspond aux compétences orthographiques. L'enfant apprend ici à transcrire l'information sonore en information visuelle. Il découvre le principe de la combinatoire (b+a=ba) et les spécificités orthographiques du français.
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">Je comprends</span> — Cet axe permet de travailler les compétences nécessaires à une bonne compréhension de ce qui est lu. Il repose sur la compréhension du vocabulaire, des pronoms et la fluidité de lecture.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2: Statut des competences -->
+                    <div>
+                        <h4 class="font-semibold text-primary-ink mb-4">Statut des compétences</h4>
+                        <div class="space-y-4 text-sm text-neutral-medium leading-relaxed">
+                            <div>
+                                <span class="font-semibold text-primary-ink">Acquise</span> — Le seuil de réussite a été atteint dans Poppins pour cette notion. Cette base permet d'accéder à d'autres notions plus complexes.
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">En cours</span> — L'enfant est en plein apprentissage de cette notion. Des exercices ciblés lui sont proposés de manière continue pour l'entraîner et l'aider à se familiariser avec cette nouvelle compétence.
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">Non-acquise</span> — L'enfant s'entraîne actuellement sur cette notion mais rencontre quelques défis. Le seuil de réussite n'est pas encore atteint dans Poppins. Nous continuons à proposer des exercices adaptés. N'hésitez pas à consulter nos ressources ou à en parler à votre orthophoniste pour un accompagnement complémentaire.
+                            </div>
+                            <div>
+                                <span class="font-semibold text-primary-ink">À revoir</span> — Cette notion n'est pas encore suffisamment ancrée dans Poppins. Des exercices de révision seront automatiquement proposés pour consolider cette acquisition.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Questionnaires -->
+                <div class="mt-8 pt-8 border-t border-background-light">
+                    <h4 class="font-semibold text-primary-ink mb-4">Les questionnaires</h4>
+                    <div class="grid md:grid-cols-3 gap-6 text-sm text-neutral-medium leading-relaxed">
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-1">Ressenti face aux difficultés</p>
+                            <p class="text-xs text-neutral-medium mb-2">33 questions · Administré à 1 semaine</p>
+                            <p>Ce questionnaire mesure le ressenti de l'enfant face à ses difficultés en lecture et en orthographe. Il explore l'impact sur l'humeur (stress, préoccupations), les émotions (tristesse, sommeil), le quotidien (fatigue, temps disponible) et l'estime de soi (honte, regard des autres). Les mêmes questions sont reposées à 3 mois pour mesurer l'évolution.</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-1">Satisfaction et usabilité</p>
+                            <p class="text-xs text-neutral-medium mb-2">21 questions · Administré à 6 semaines</p>
+                            <p>Ce questionnaire évalue l'expérience d'utilisation de Poppins par le parent. Il comprend une échelle d'amélioration globale (PGI), un score de recommandation (NPS) et des questions sur la facilité d'utilisation, la navigation, la satisfaction générale et l'utilité perçue de l'application.</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-1">Suivi trimestriel</p>
+                            <p class="text-xs text-neutral-medium mb-2">35 questions · Administré à 3 mois puis tous les 3 mois</p>
+                            <p>Ce questionnaire de suivi associe l'évaluation parentale (amélioration globale, recommandation) et le ressenti de l'enfant (33 questions identiques au premier questionnaire). La comparaison avec les réponses initiales permet de mesurer l'évolution du rapport de l'enfant à la lecture et à l'orthographe.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Test de fluence -->
+                <div class="mt-8 pt-8 border-t border-background-light">
+                    <h4 class="font-semibold text-primary-ink mb-4">Test de fluence</h4>
+
+                    <div class="grid md:grid-cols-3 gap-8 text-sm text-neutral-medium leading-relaxed">
+                        <!-- Colonne 1: Que mesurons-nous ? -->
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-3">Que mesurons-nous ?</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Mots lus par minute</span> — Nombre de mots lus par minute. Un mot est considéré comme lu s'il est prononcé sans erreur et sans hésitation prolongée.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Score de précision</span> — Pourcentage de mots correctement lus. Un mot est considéré comme correct s'il est lu sans erreur ni hésitation prolongée.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Score de compréhension</span> — Pourcentage de réponses correctes aux questions posées sur le texte lu. Il évalue la capacité de l'enfant à comprendre, retenir et analyser les informations du texte. Commence au niveau de difficulté 2.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colonne 2: Comment lire les résultats ? -->
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-3">Comment lire les résultats ?</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Changement de niveau</span> — À chaque test de lecture, nous adaptons le niveau selon les résultats. Si les exercices semblent trop difficiles, nous choisissons un niveau plus facile. En revanche, s'il réussit très bien, nous augmentons la difficulté pour continuer à le stimuler.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Résultats qui varient</span> — Comme tout apprentissage, la lecture est un cheminement parfois sinueux. Il est normal de constater des variations d'un test à l'autre. L'important est de regarder la progression sur le long terme, et non les résultats isolés.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colonne 3: À quoi correspondent les niveaux ? -->
+                        <div>
+                            <p class="font-semibold text-primary-ink mb-3">À quoi correspondent les niveaux ?</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Niveau 1</span> — Un texte bref avec des mots fréquents, les phrases sont courtes et faciles à comprendre.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Niveau 2</span> — Un texte court avec des mots courants. Il contient des sons comme "an" dans "chanter" ou "on" dans "bonbon", où deux lettres se prononcent ensemble.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Niveau 3</span> — Un texte avec des mots courants, mais qui contient des sons difficiles à prononcer et des phrases un peu plus compliquées.
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-primary-ink">Niveau 4</span> — Un texte qui contient des mots que l'enfant ne connaît peut-être pas encore, les phrases sont longues et utilisent des structures grammaticales plus complexes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- Mention légale -->
+<footer class="max-w-[1440px] mx-auto px-6 lg:px-[204px] py-8 border-t border-background-light">
+    <p class="text-xs text-neutral-medium text-center">
+        Ce document est un bilan de progrès automatisé basé sur l'usage de l'application Poppins.
+        Il ne remplace pas un diagnostic médical professionnel.
+    </p>
+</footer>
+
+<script>
+    // Gestion de la sélection des bilans
+    const bilanItems = document.querySelectorAll('.bilan-item');
+    const bilanSections = document.querySelectorAll('.bilan-section');
+    const bilanTitle = document.getElementById('bilan-title');
+
+    const titles = {
+        'janvier-2026': 'Bilan de Janvier 2026',
+        'decembre-2025': 'Bilan de Décembre 2025',
+        'novembre-2025': 'Bilan de Novembre 2025',
+        'octobre-2025': 'Bilan d\'Octobre 2025',
+        'septembre-2025': 'Bilan de Septembre 2025',
+        'aout-2025': 'Bilan d\'Août 2025'
+    };
+
+    bilanItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const month = this.dataset.month;
+
+            // Retirer la sélection active
+            bilanItems.forEach(i => i.classList.remove('active'));
+            bilanSections.forEach(s => s.classList.remove('active'));
+
+            // Ajouter la sélection sur l'item cliqué
+            this.classList.add('active');
+
+            // Afficher le contenu correspondant
+            const section = document.getElementById('bilan-' + month);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            // Mettre à jour le titre
+            bilanTitle.textContent = titles[month] || 'Bilan';
+        });
+    });
+
+    // Bouton PDF
+    document.getElementById('download-pdf').addEventListener('click', function() {
+        window.print();
+    });
+</script>
+
+<!-- ========== QUESTIONNAIRE MODAL LOGIC ========== -->
+<script>
+(function() {
+    // Elements DOM
+    const modal = document.getElementById('questionnaire-modal');
+    const stepIndicator = document.getElementById('step-indicator');
+    const progressBar = document.getElementById('progress-bar');
+    const btnBack = document.getElementById('btn-back');
+    const btnNext = document.getElementById('btn-next');
+    const btnNextText = document.getElementById('btn-next-text');
+    const commentInput = document.getElementById('comment-input');
+    const charCount = document.getElementById('char-count');
+
+    const questionSlides = [
+        document.getElementById('question-1'),
+        document.getElementById('question-2'),
+        document.getElementById('question-3')
+    ];
+
+    // Etat
+    let currentStep = 1;
+    const totalSteps = 3;
+    const answers = {
+        observation: null,
+        lecture: null,
+        comment: ''
+    };
+
+    // Labels pour l'affichage
+    const observationLabels = {
+        'progres-nets': { text: 'Des progres nets', emoji: '🚀', color: 'bg-green-light/30 text-green' },
+        'legers-progres': { text: 'De legers progres', emoji: '📈', color: 'bg-green-light/30 text-green' },
+        'pas-changement': { text: 'Pas de changement', emoji: '➡️', color: 'bg-neutral-light text-neutral-medium' },
+        'difficultes': { text: 'Des difficultes', emoji: '😓', color: 'bg-red/10 text-red' }
+    };
+
+    const lectureLabels = {
+        'oui': { text: 'Oui, plus sereins', emoji: '😊' },
+        'non': { text: 'Non, pas encore', emoji: '😕' },
+        'pareil': { text: 'Pareil qu\'avant', emoji: '🤷' }
+    };
+
+    // Initialisation
+    function init() {
+        updateUI();
+        setupEventListeners();
+    }
+
+    function setupEventListeners() {
+        // Changement des radios Q1 - auto-avance
+        document.querySelectorAll('input[name="observation"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                answers.observation = e.target.value;
+                // Auto-avance apres un court delai pour feedback visuel
+                setTimeout(() => {
+                    currentStep++;
+                    updateUI();
+                }, 300);
+            });
+        });
+
+        // Changement des radios Q2 - auto-avance
+        document.querySelectorAll('input[name="lecture"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                answers.lecture = e.target.value;
+                // Auto-avance apres un court delai pour feedback visuel
+                setTimeout(() => {
+                    currentStep++;
+                    updateUI();
+                }, 300);
+            });
+        });
+
+        // Textarea commentaire
+        commentInput.addEventListener('input', (e) => {
+            answers.comment = e.target.value;
+            charCount.textContent = `${e.target.value.length}/280`;
+            updateNextButton();
+        });
+
+        // Boutons de navigation
+        btnNext.addEventListener('click', handleNext);
+        btnBack.addEventListener('click', handleBack);
+    }
+
+    function updateUI() {
+        // Mise a jour indicateur d'etape
+        stepIndicator.textContent = `Question ${currentStep}/${totalSteps}`;
+
+        // Mise a jour barre de progression
+        progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+        // Afficher/masquer les slides
+        questionSlides.forEach((slide, index) => {
+            slide.classList.toggle('hidden', index !== currentStep - 1);
+        });
+
+        // Afficher/masquer bouton retour
+        btnBack.classList.toggle('hidden', currentStep === 1);
+
+        // Afficher bouton uniquement pour Q3 (Terminer)
+        if (currentStep === totalSteps) {
+            btnNext.classList.remove('hidden');
+            btnNextText.textContent = 'Terminer';
+            btnNext.querySelector('.material-symbols-outlined').textContent = 'check';
+            btnNext.disabled = false;
+        } else {
+            // Masquer le bouton pour Q1 et Q2 (auto-avance au clic)
+            btnNext.classList.add('hidden');
+        }
+    }
+
+    function updateNextButton() {
+        let isValid = false;
+
+        switch (currentStep) {
+            case 1:
+                isValid = answers.observation !== null;
+                break;
+            case 2:
+                isValid = answers.lecture !== null;
+                break;
+            case 3:
+                // Q3 est optionnelle, toujours valide
+                isValid = true;
+                break;
+        }
+
+        btnNext.disabled = !isValid;
+    }
+
+    function handleNext() {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateUI();
+        } else {
+            // Terminer le questionnaire
+            completeQuestionnaire();
+        }
+    }
+
+    function handleBack() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateUI();
+        }
+    }
+
+    function completeQuestionnaire() {
+        // Fermer la modale
+        closeModal();
+
+        // Mettre a jour la section "Votre regard"
+        updateVotreRegardSection();
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+    }
+
+    function updateVotreRegardSection() {
+        const votreRegardContent = document.getElementById('votre-regard-content');
+        if (!votreRegardContent) return;
+
+        const obs = observationLabels[answers.observation];
+        const lect = lectureLabels[answers.lecture];
+        const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let html = `
+            <p class="text-xs text-neutral-medium mb-4">Questionnaire du ${today}</p>
+
+            <!-- Observation -->
+            <div class="p-3 rounded-xl ${obs.color} flex items-center gap-3 mb-4">
+                <span class="text-2xl">${obs.emoji}</span>
+                <div>
+                    <p class="text-xs opacity-70">Vous avez observe chez Dwight</p>
+                    <p class="font-semibold">${obs.text}</p>
+                </div>
+            </div>
+
+            <!-- Lecture -->
+            <div class="p-3 rounded-xl bg-neutral-light mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${lect.emoji}</span>
+                    <div>
+                        <p class="text-xs text-neutral-medium">Moments de lecture plus sereins ?</p>
+                        <p class="text-sm font-medium text-primary-ink">${lect.text}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Ajouter le commentaire si fourni
+        if (answers.comment && answers.comment.trim()) {
+            html += `
+                <!-- Commentaire -->
+                <div class="p-3 rounded-xl bg-neutral-light">
+                    <p class="text-xs text-neutral-medium mb-1">Votre mot sur le mois</p>
+                    <p class="text-sm text-primary-ink italic">"${answers.comment}"</p>
+                </div>
+            `;
+        }
+
+        votreRegardContent.innerHTML = html;
+    }
+
+    // Lancer au chargement du DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+
+<!-- Bouton flottant retour (masque sur mobile) -->
+<a href="code.html" class="hidden md:flex fixed bottom-6 left-6 items-center gap-2 bg-white shadow-poppins px-4 py-3 rounded-xl text-primary hover:bg-primary-light transition-colors z-50">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Retour aux comparaisons
+</a>
+
+<!-- ========== MOBILE: Bouton flottant pour changer de mois ========== -->
+<button id="mobile-month-btn" class="md:hidden fixed bottom-6 right-6 flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full font-semibold shadow-poppins hover:bg-primary-ink transition-colors z-50">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span id="mobile-current-month">Janvier 2026</span>
+</button>
+
+<!-- ========== MOBILE: Bottom Sheet pour la liste des bilans ========== -->
+<div id="month-bottom-sheet" class="fixed inset-0 z-[60] pointer-events-none">
+    <!-- Backdrop -->
+    <div id="bottom-sheet-backdrop" class="absolute inset-0 bg-primary-ink/40 opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Sheet -->
+    <div id="bottom-sheet-content" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl transform translate-y-full transition-transform duration-300 ease-out">
+        <!-- Handle -->
+        <div class="flex justify-center pt-3 pb-2">
+            <div class="w-10 h-1 bg-neutral-medium/30 rounded-full"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="px-6 pb-4 border-b border-background-light">
+            <h3 class="text-lg font-semibold text-primary-ink">Choisir un bilan</h3>
+        </div>
+
+        <!-- Liste des bilans -->
+        <div class="px-4 py-4 max-h-[60vh] overflow-y-auto">
+            <nav class="bg-[#E5ECF5] rounded-2xl p-1.5 space-y-1">
+                <div class="mobile-bilan-item active" data-month="janvier-2026">
+                    <div class="flex items-center gap-2">
+                        <p class="font-medium">Janvier 2026</p>
+                        <span class="bg-green text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">new</span>
+                    </div>
+                </div>
+                <div class="mobile-bilan-item" data-month="decembre-2025">
+                    <p class="font-medium">Décembre 2025</p>
+                </div>
+                <div class="mobile-bilan-item" data-month="novembre-2025">
+                    <p class="font-medium">Novembre 2025</p>
+                </div>
+                <div class="mobile-bilan-item" data-month="octobre-2025">
+                    <p class="font-medium">Octobre 2025</p>
+                </div>
+                <div class="mobile-bilan-item" data-month="septembre-2025">
+                    <p class="font-medium">Septembre 2025</p>
+                </div>
+                <div class="mobile-bilan-item" data-month="aout-2025">
+                    <p class="font-medium">Août 2025</p>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Safe area bottom padding -->
+        <div class="h-6"></div>
+    </div>
+</div>
+
+<!-- Script pour le bottom sheet mobile -->
+<script>
+(function() {
+    const btn = document.getElementById('mobile-month-btn');
+    const sheet = document.getElementById('month-bottom-sheet');
+    const backdrop = document.getElementById('bottom-sheet-backdrop');
+    const content = document.getElementById('bottom-sheet-content');
+    const currentMonthLabel = document.getElementById('mobile-current-month');
+    const mobileItems = document.querySelectorAll('.mobile-bilan-item');
+    const desktopItems = document.querySelectorAll('.bilan-item');
+
+    let isOpen = false;
+
+    function openSheet() {
+        isOpen = true;
+        sheet.classList.remove('pointer-events-none');
+        backdrop.classList.remove('opacity-0');
+        content.classList.remove('translate-y-full');
+    }
+
+    function closeSheet() {
+        isOpen = false;
+        backdrop.classList.add('opacity-0');
+        content.classList.add('translate-y-full');
+        setTimeout(() => {
+            sheet.classList.add('pointer-events-none');
+        }, 300);
+    }
+
+    btn.addEventListener('click', openSheet);
+    backdrop.addEventListener('click', closeSheet);
+
+    // Synchroniser la selection mobile avec desktop
+    mobileItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const month = item.dataset.month;
+
+            // Mettre a jour les classes active
+            mobileItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            // Synchroniser avec desktop
+            desktopItems.forEach(i => {
+                i.classList.remove('active');
+                if (i.dataset.month === month) {
+                    i.classList.add('active');
+                    i.click(); // Declencher le changement de contenu
+                }
+            });
+
+            // Mettre a jour le label du bouton
+            const label = item.querySelector('p').textContent;
+            currentMonthLabel.textContent = label;
+
+            closeSheet();
+        });
+    });
+
+    // Fermer avec Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) closeSheet();
+    });
+})();
+</script>
+
+</body>
+</html>
