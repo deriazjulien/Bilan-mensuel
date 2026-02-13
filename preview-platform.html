@@ -75,7 +75,7 @@
             @apply bg-white shadow-poppins;
         }
         .month-card {
-            @apply bg-white rounded-2xl p-6 shadow-poppins;
+            @apply bg-white rounded-[20px] p-6 shadow-poppins;
         }
         .month-header {
             @apply text-lg font-semibold mb-4 text-primary-ink;
@@ -476,7 +476,7 @@
                 <h2 class="text-2xl font-semibold text-primary-ink" id="bilan-title">Dernier bilan</h2>
                 <p class="text-neutral-medium text-sm" id="bilan-period">Période du 19 janvier au 17 février 2026 — Dwight - CE1</p>
             </div>
-            <button id="download-pdf" class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-ink transition-colors shadow-poppins">
+            <button id="download-pdf" class="flex items-center gap-2 bg-white text-primary px-5 py-2.5 rounded-full font-semibold hover:bg-background-light transition-colors shadow-poppins">
                 <span class="material-symbols-outlined">picture_as_pdf</span>
                 Télécharger PDF
             </button>
@@ -511,20 +511,20 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">160</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">+75 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">17</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">+6 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">6</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -549,7 +549,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="60.8" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">78%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">78%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -674,7 +674,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -913,20 +913,20 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 71%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">85</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-red font-semibold">-57 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">11</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-red font-semibold">-7 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">3</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -951,7 +951,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="96.8" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">65%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">65%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -1044,7 +1044,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -1242,20 +1242,20 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">142</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">+20 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">18</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">+3 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">5</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -1280,7 +1280,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="132.7" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">52%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">52%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -1381,7 +1381,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -1584,20 +1584,20 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">122</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">+17 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">15</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">+2 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">4</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -1622,7 +1622,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="165.9" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">40%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">40%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -1723,7 +1723,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -1910,20 +1910,20 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 88%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">105</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">+23 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">13</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">+3 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">3</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -1948,7 +1948,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="199.1" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">28%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">28%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -2045,7 +2045,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -2212,20 +2212,20 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 69%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">82</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">1er mois</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">10</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">1er mois</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">2</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -2250,7 +2250,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="235.0" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">15%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">15%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -2343,7 +2343,7 @@
                     </h3>
 
                     <!-- Légende -->
-                    <div class="flex items-center gap-6 mb-4 text-sm">
+                    <div class="flex items-center justify-center gap-6 mb-4 text-sm bg-neutral-light rounded-lg px-4 py-2">
                         <div class="flex items-center gap-2">
                             <span class="w-5 h-5 rounded-full bg-green flex items-center justify-center">
                                 <span class="material-symbols-outlined text-white text-[14px]">check</span>
@@ -2708,20 +2708,20 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-background-light">
-                        <div class="text-center">
+                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">160</p>
                             <p class="text-xs text-neutral-medium">parties jouées</p>
                             <p class="text-xs text-green font-semibold">+75 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">📅</span>
                             <p class="text-xl font-semibold">17</p>
                             <p class="text-xs text-neutral-medium">jours d'activité sur 31</p>
                             <p class="text-xs text-green font-semibold">+6 vs période précédente</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🔥</span>
                             <p class="text-xl font-semibold">6</p>
                             <p class="text-xs text-neutral-medium">jours d'affilée max</p>
@@ -2747,7 +2747,7 @@
                                     <circle cx="48" cy="48" r="44" stroke="#10b981" stroke-width="8" fill="none"
                                             stroke-dasharray="276.5" stroke-dashoffset="0" stroke-linecap="round"/>
                                 </svg>
-                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-green-600">100%</span>
+                                <span class="absolute inset-0 flex items-center justify-center text-xl font-black text-primary-ink">100%</span>
                             </div>
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
@@ -2909,7 +2909,7 @@
                         <p class="text-xs text-neutral-medium mb-4">Questionnaire du 15 janvier 2026</p>
 
                         <!-- Observation -->
-                        <div class="p-3 rounded-xl bg-green-50 flex items-center gap-3 mb-4">
+                        <div class="p-3 rounded-xl bg-neutral-light flex items-center gap-3 mb-4">
                             <span class="text-2xl">😊</span>
                             <div>
                                 <p class="text-xs opacity-70">Vous avez observé chez Dwight</p>
