@@ -37,11 +37,21 @@
         }
     </script>
     <style type="text/tailwindcss">
+        html {
+            overflow-x: hidden;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
         .nav-tab {
-            @apply text-sm font-medium text-white/60 hover:text-white transition-colors cursor-pointer;
+            @apply text-sm font-medium text-white/60 hover:text-white transition-colors cursor-pointer whitespace-nowrap;
         }
         .nav-tab.active {
             @apply text-white font-semibold;
@@ -75,7 +85,7 @@
             @apply bg-white shadow-poppins;
         }
         .month-card {
-            @apply bg-white rounded-[20px] p-6 shadow-poppins;
+            @apply bg-white rounded-[20px] p-4 lg:p-6 shadow-poppins;
         }
         .month-header {
             @apply text-lg font-semibold mb-4 text-primary-ink;
@@ -166,6 +176,7 @@
             padding: 8px 12px;
             border-radius: 8px;
             width: 280px;
+            max-width: calc(100vw - 48px);
             z-index: 50;
             transition: opacity 0.15s, visibility 0.15s;
             pointer-events: none;
@@ -206,6 +217,20 @@
         /* Gauge animation */
         .gauge-progress {
             transition: stroke-dashoffset 1s ease-out;
+        }
+        /* Accordion */
+        details summary {
+            list-style: none;
+            cursor: pointer;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary .accordion-chevron {
+            transition: transform 0.2s;
+        }
+        details[open] summary .accordion-chevron {
+            transform: rotate(180deg);
         }
         /* Print styles */
         .print-only-section {
@@ -396,8 +421,8 @@
 
 <!-- Barre d'onglets sticky -->
 <div class="bg-primary text-white sticky top-[73px] z-40 pt-4">
-    <div class="max-w-[1440px] mx-auto px-6 lg:px-[204px]">
-        <nav class="flex items-end gap-6">
+    <div class="max-w-[1440px] mx-auto lg:px-[204px]">
+        <nav class="flex items-end gap-4 sm:gap-6 overflow-x-auto scrollbar-hide px-6 lg:px-0">
             <span class="nav-tab pb-3 border-b-2 border-transparent">Coup d'œil</span>
             <span class="nav-tab pb-3 border-b-2 border-transparent">Langage écrit</span>
             <span class="nav-tab pb-3 border-b-2 border-transparent">Rythme</span>
@@ -468,13 +493,13 @@
         </aside>
 
         <!-- Zone principale : Contenu du bilan -->
-        <main class="flex-1 py-6 md:pl-6 md:border-l border-background-light">
+        <main class="flex-1 min-w-0 py-6 md:pl-6 md:border-l border-background-light">
 
         <!-- En-tête du bilan -->
-        <div id="bilan-header" class="flex items-center justify-between mb-6">
+        <div id="bilan-header" class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
             <div>
                 <h2 class="text-2xl font-semibold text-primary-ink" id="bilan-title">Dernier bilan</h2>
-                <p class="text-neutral-medium text-sm" id="bilan-period">Période du 19 janvier au 17 février 2026 — Dwight - CE1</p>
+                <p class="text-neutral-medium text-sm" id="bilan-period">Période du 19 janvier au 17 février 2026</p>
             </div>
             <button id="download-pdf" class="flex items-center gap-2 bg-white text-primary px-5 py-2.5 rounded-full font-semibold hover:bg-background-light transition-colors shadow-poppins">
                 <span class="material-symbols-outlined">picture_as_pdf</span>
@@ -511,7 +536,7 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">160</p>
@@ -540,7 +565,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -554,7 +579,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -657,10 +682,6 @@
                         <div class="badge-item-icon">
                             <span class="material-symbols-outlined text-3xl text-green-500 mb-1">auto_stories</span>
                             <span class="badge-label">Lecture</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+1</span>
-                            <span class="badge-label">badge</span>
                         </div>
                     </div>
                 </div>
@@ -913,7 +934,7 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 71%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">85</p>
@@ -942,7 +963,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -956,7 +977,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -1027,10 +1048,6 @@
                         <div class="badge-item">
                             <img src="Poppins_badges/jecris1_AN-EN.png" alt="Badge an-en" class="w-14 h-14 object-contain mb-1">
                             <span class="badge-label">Distinction an/en</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+2</span>
-                            <span class="badge-label">autres</span>
                         </div>
                     </div>
                 </div>
@@ -1242,7 +1259,7 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">142</p>
@@ -1271,7 +1288,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -1285,7 +1302,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -1364,10 +1381,6 @@
                         <div class="badge-item">
                             <img src="Poppins_badges/jecris_ON.png" alt="Badge on" class="w-14 h-14 object-contain mb-1">
                             <span class="badge-label">Écriture "on"</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+5</span>
-                            <span class="badge-label">autres</span>
                         </div>
                     </div>
                 </div>
@@ -1584,7 +1597,7 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">122</p>
@@ -1613,7 +1626,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -1627,7 +1640,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -1706,10 +1719,6 @@
                         <div class="badge-item">
                             <img src="Poppins_badges/jelis_IN.png" alt="Badge in" class="w-14 h-14 object-contain mb-1">
                             <span class="badge-label">Lecture "in"</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+3</span>
-                            <span class="badge-label">autres</span>
                         </div>
                     </div>
                 </div>
@@ -1910,7 +1919,7 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 88%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">105</p>
@@ -1939,7 +1948,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -1953,7 +1962,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -2028,10 +2037,6 @@
                         <div class="badge-item">
                             <img src="Poppins_badges/jelis_ET.png" alt="Badge et" class="w-14 h-14 object-contain mb-1">
                             <span class="badge-label">Lecture "et"</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+2</span>
-                            <span class="badge-label">autres</span>
                         </div>
                     </div>
                 </div>
@@ -2212,7 +2217,7 @@
                             <div class="h-full bg-orange-400 rounded-full" style="width: 69%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">82</p>
@@ -2241,7 +2246,7 @@
                         Progression dans le programme
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -2255,7 +2260,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -2326,10 +2331,6 @@
                         <div class="badge-item">
                             <img src="Poppins_badges/jecris_MOTSIMPLE.png" alt="Badge mots simples" class="w-14 h-14 object-contain mb-1">
                             <span class="badge-label">Mots simples</span>
-                        </div>
-                        <div class="badge-item-icon bg-gray-100 rounded-lg">
-                            <span class="text-2xl font-bold text-neutral-medium">+1</span>
-                            <span class="badge-label">autre</span>
                         </div>
                     </div>
                 </div>
@@ -2473,22 +2474,26 @@
 
         </div>
 
-            <!-- Séparateur PDF -->
-            <div id="bilan-descriptions-separator" class="flex items-center gap-4 mt-12">
-                <div class="flex-1 h-px bg-neutral-medium/30"></div>
-                <p class="text-sm text-neutral-medium whitespace-nowrap">Données non visibles dans la plateforme mais présente sur une page dédiée dans le PDF généré</p>
-                <div class="flex-1 h-px bg-neutral-medium/30"></div>
+            <!-- Mention légale -->
+            <div class="pt-8 pb-4">
+                <p class="text-xs text-neutral-medium text-center">
+                    Ce document est un bilan de progrès automatisé basé sur l'usage de l'application Poppins.
+                    Il ne remplace pas un diagnostic médical professionnel.
+                </p>
             </div>
 
             <!-- Section Comment lire ce rapport ? -->
-            <section id="bilan-descriptions" class="pt-8">
-                <h3 class="text-lg font-semibold text-primary-ink mb-6">Comment lire ce rapport ?</h3>
+            <div id="bilan-descriptions" class="pt-8">
+                <h3 class="text-lg font-semibold text-primary-ink mb-4">Comment lire ce rapport ?</h3>
+                <div class="divide-y divide-neutral-medium/20">
 
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Colonne 1: Les axes de travail -->
-                    <div>
-                        <h4 class="font-semibold text-primary-ink mb-4">Les axes de travail</h4>
-                        <div class="space-y-4 text-sm text-neutral-medium leading-relaxed">
+                    <!-- Les axes de travail -->
+                    <details class="py-4">
+                        <summary class="flex items-center justify-between cursor-pointer">
+                            <h4 class="font-semibold text-primary-ink">Les axes de travail</h4>
+                            <span class="material-symbols-outlined accordion-chevron text-neutral-medium">expand_more</span>
+                        </summary>
+                        <div class="mt-4 space-y-4 text-sm text-neutral-medium leading-relaxed">
                             <div>
                                 <span class="font-semibold text-primary-ink">Je lis</span> — Cet axe correspond aux compétences en lecture. À partir du code alphabétique, le lecteur reconnaît un mot donné en convertissant l'information visuelle (les <strong>graphèmes</strong>) en information sonore (les <strong>phonèmes</strong>).
                             </div>
@@ -2502,12 +2507,15 @@
                                 <span class="font-semibold text-primary-ink">Je comprends</span> — Cet axe permet de travailler les compétences nécessaires à une bonne compréhension de ce qui est lu. Il repose sur la compréhension du vocabulaire, des pronoms et la fluidité de lecture.
                             </div>
                         </div>
-                    </div>
+                    </details>
 
-                    <!-- Colonne 2: Statut des competences -->
-                    <div>
-                        <h4 class="font-semibold text-primary-ink mb-4">Statut des compétences</h4>
-                        <div class="space-y-4 text-sm text-neutral-medium leading-relaxed">
+                    <!-- Statut des compétences -->
+                    <details class="py-4">
+                        <summary class="flex items-center justify-between cursor-pointer">
+                            <h4 class="font-semibold text-primary-ink">Statut des compétences</h4>
+                            <span class="material-symbols-outlined accordion-chevron text-neutral-medium">expand_more</span>
+                        </summary>
+                        <div class="mt-4 space-y-4 text-sm text-neutral-medium leading-relaxed">
                             <div>
                                 <span class="font-semibold text-primary-ink">Acquise</span> — Le seuil de réussite a été atteint dans Poppins pour cette notion. Cette base permet d'accéder à d'autres notions plus complexes.
                             </div>
@@ -2521,86 +2529,79 @@
                                 <span class="font-semibold text-primary-ink">À revoir</span> — Cette notion n'est pas encore suffisamment ancrée dans Poppins. Des exercices de révision seront automatiquement proposés pour consolider cette acquisition.
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </details>
 
-                <!-- Section Questionnaires -->
-                <div class="mt-8 pt-8 border-t border-background-light">
-                    <h4 class="font-semibold text-primary-ink mb-4">Les questionnaires</h4>
-                    <div class="grid md:grid-cols-3 gap-6 text-sm text-neutral-medium leading-relaxed">
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-1">Ressenti face aux difficultés</p>
-                            <p class="text-xs text-neutral-medium mb-2">33 questions · Administré à 1 semaine</p>
-                            <p>Ce questionnaire mesure le ressenti de l'enfant face à ses difficultés en lecture et en orthographe. Il explore l'impact sur l'humeur (stress, préoccupations), les émotions (tristesse, sommeil), le quotidien (fatigue, temps disponible) et l'estime de soi (honte, regard des autres). Les mêmes questions sont reposées à 3 mois pour mesurer l'évolution.</p>
+                    <!-- Votre regard -->
+                    <details class="py-4">
+                        <summary class="flex items-center justify-between cursor-pointer">
+                            <h4 class="font-semibold text-primary-ink">Votre regard</h4>
+                            <span class="material-symbols-outlined accordion-chevron text-neutral-medium">expand_more</span>
+                        </summary>
+                        <div class="mt-4 text-sm text-neutral-medium leading-relaxed space-y-3">
+                            <p>Chaque mois, un court questionnaire vous invite à partager vos observations sur les progrès de votre enfant.</p>
+                            <p>Vos réponses permettent de croiser votre ressenti avec les données d'entraînement et d'enrichir le suivi. Elles sont strictement confidentielles et ne sont visibles que par vous.</p>
+                            <div class="space-y-2 mt-4">
+                                <div><span class="font-semibold text-primary-ink">Évolution observée</span> — Votre perception des progrès de votre enfant ce mois-ci.</div>
+                                <div><span class="font-semibold text-primary-ink">Sérénité en lecture</span> — Si les moments de lecture sont plus apaisés.</div>
+                                <div><span class="font-semibold text-primary-ink">Votre mot</span> — Un commentaire libre pour noter ce qui vous semble important.</div>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-1">Satisfaction et usabilité</p>
-                            <p class="text-xs text-neutral-medium mb-2">21 questions · Administré à 6 semaines</p>
-                            <p>Ce questionnaire évalue l'expérience d'utilisation de Poppins par le parent. Il comprend une échelle d'amélioration globale (PGI), un score de recommandation (NPS) et des questions sur la facilité d'utilisation, la navigation, la satisfaction générale et l'utilité perçue de l'application.</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-1">Suivi trimestriel</p>
-                            <p class="text-xs text-neutral-medium mb-2">35 questions · Administré à 3 mois puis tous les 3 mois</p>
-                            <p>Ce questionnaire de suivi associe l'évaluation parentale (amélioration globale, recommandation) et le ressenti de l'enfant (33 questions identiques au premier questionnaire). La comparaison avec les réponses initiales permet de mesurer l'évolution du rapport de l'enfant à la lecture et à l'orthographe.</p>
-                        </div>
-                    </div>
-                </div>
+                    </details>
 
-                <!-- Section Test de lecture -->
-                <div class="mt-8 pt-8 border-t border-background-light">
-                    <h4 class="font-semibold text-primary-ink mb-4">Test de lecture</h4>
-
-                    <div class="grid md:grid-cols-3 gap-8 text-sm text-neutral-medium leading-relaxed">
-                        <!-- Colonne 1: Que mesurons-nous ? -->
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-3">Que mesurons-nous ?</p>
-                            <div class="space-y-3">
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Mots lus par minute</span> — Nombre de mots lus par minute. Un mot est considéré comme lu s'il est prononcé sans erreur et sans hésitation prolongée.
+                    <!-- Test de lecture -->
+                    <details class="py-4">
+                        <summary class="flex items-center justify-between cursor-pointer">
+                            <h4 class="font-semibold text-primary-ink">Test de lecture</h4>
+                            <span class="material-symbols-outlined accordion-chevron text-neutral-medium">expand_more</span>
+                        </summary>
+                        <div class="mt-4 grid md:grid-cols-3 gap-8 text-sm text-neutral-medium leading-relaxed">
+                            <div>
+                                <p class="font-semibold text-primary-ink mb-3">Que mesurons-nous ?</p>
+                                <div class="space-y-3">
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Mots lus par minute</span> — Nombre de mots lus par minute. Un mot est considéré comme lu s'il est prononcé sans erreur et sans hésitation prolongée.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Score de précision</span> — Pourcentage de mots correctement lus. Un mot est considéré comme correct s'il est lu sans erreur ni hésitation prolongée.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Score de compréhension</span> — Pourcentage de réponses correctes aux questions posées sur le texte lu. Il évalue la capacité de l'enfant à comprendre, retenir et analyser les informations du texte. Commence au niveau de difficulté 2.
+                                    </div>
                                 </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Score de précision</span> — Pourcentage de mots correctement lus. Un mot est considéré comme correct s'il est lu sans erreur ni hésitation prolongée.
+                            </div>
+                            <div>
+                                <p class="font-semibold text-primary-ink mb-3">Comment lire les résultats ?</p>
+                                <div class="space-y-3">
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Changement de niveau</span> — À chaque test de lecture, nous adaptons le niveau selon les résultats. Si les exercices semblent trop difficiles, nous choisissons un niveau plus facile. En revanche, s'il réussit très bien, nous augmentons la difficulté pour continuer à le stimuler.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Résultats qui varient</span> — Comme tout apprentissage, la lecture est un cheminement parfois sinueux. Il est normal de constater des variations d'un test à l'autre. L'important est de regarder la progression sur le long terme, et non les résultats isolés.
+                                    </div>
                                 </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Score de compréhension</span> — Pourcentage de réponses correctes aux questions posées sur le texte lu. Il évalue la capacité de l'enfant à comprendre, retenir et analyser les informations du texte. Commence au niveau de difficulté 2.
+                            </div>
+                            <div>
+                                <p class="font-semibold text-primary-ink mb-3">À quoi correspondent les niveaux ?</p>
+                                <div class="space-y-3">
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Niveau 1</span> — Un texte bref avec des mots fréquents, les phrases sont courtes et faciles à comprendre.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Niveau 2</span> — Un texte court avec des mots courants. Il contient des sons comme "an" dans "chanter" ou "on" dans "bonbon", où deux lettres se prononcent ensemble.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Niveau 3</span> — Un texte avec des mots courants, mais qui contient des sons difficiles à prononcer et des phrases un peu plus compliquées.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-primary-ink">Niveau 4</span> — Un texte qui contient des mots que l'enfant ne connaît peut-être pas encore, les phrases sont longues et utilisent des structures grammaticales plus complexes.
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </details>
 
-                        <!-- Colonne 2: Comment lire les résultats ? -->
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-3">Comment lire les résultats ?</p>
-                            <div class="space-y-3">
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Changement de niveau</span> — À chaque test de lecture, nous adaptons le niveau selon les résultats. Si les exercices semblent trop difficiles, nous choisissons un niveau plus facile. En revanche, s'il réussit très bien, nous augmentons la difficulté pour continuer à le stimuler.
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Résultats qui varient</span> — Comme tout apprentissage, la lecture est un cheminement parfois sinueux. Il est normal de constater des variations d'un test à l'autre. L'important est de regarder la progression sur le long terme, et non les résultats isolés.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Colonne 3: À quoi correspondent les niveaux ? -->
-                        <div>
-                            <p class="font-semibold text-primary-ink mb-3">À quoi correspondent les niveaux ?</p>
-                            <div class="space-y-3">
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Niveau 1</span> — Un texte bref avec des mots fréquents, les phrases sont courtes et faciles à comprendre.
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Niveau 2</span> — Un texte court avec des mots courants. Il contient des sons comme "an" dans "chanter" ou "on" dans "bonbon", où deux lettres se prononcent ensemble.
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Niveau 3</span> — Un texte avec des mots courants, mais qui contient des sons difficiles à prononcer et des phrases un peu plus compliquées.
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-primary-ink">Niveau 4</span> — Un texte qui contient des mots que l'enfant ne connaît peut-être pas encore, les phrases sont longues et utilisent des structures grammaticales plus complexes.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-            </section>
+            </div>
 
             <!-- ========== EDGE CASE: Premier mois ========== -->
             <div id="bilan-edge-premier-mois" class="bilan-section space-y-6">
@@ -2708,7 +2709,7 @@
                             <div class="h-full bg-green rounded-full" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4 pt-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 pt-4">
                         <div class="text-center bg-neutral-light rounded-lg py-4">
                             <span class="text-xl">🎮</span>
                             <p class="text-xl font-semibold">160</p>
@@ -2738,7 +2739,7 @@
                         <span class="tooltip-wrapper"><span class="material-symbols-outlined tooltip-icon">info</span><span class="tooltip-text">Avancement dans les 4 axes du programme : Je lis, J'écoute, J'écris et Je comprends.</span></span>
                     </h3>
                     <p class="text-sm text-neutral-medium mb-4">[Prénom] a complété l'intégralité du programme, il est maintenant en mode révision, il va revoir un ensemble de compétences pour valider les acquis dans la durée.</p>
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
                         <!-- Cercle Global (gauche) -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
@@ -2752,7 +2753,7 @@
                             <span class="mt-1 text-sm font-bold text-gray-700 dark:text-gray-300">Global</span>
                         </div>
                         <!-- Séparateur -->
-                        <div class="w-px h-20 bg-gray-200"></div>
+                        <div class="hidden lg:block w-px h-20 bg-gray-200"></div>
                         <!-- 4 cercles axes (droite) -->
                         <div class="flex-1 grid grid-cols-4 gap-1">
                             <div class="flex flex-col items-center">
@@ -2942,14 +2943,6 @@
     </div>
 </div>
 
-<!-- Mention légale -->
-<footer class="max-w-[1440px] mx-auto px-6 lg:px-[204px] py-8 border-t border-background-light">
-    <p class="text-xs text-neutral-medium text-center">
-        Ce document est un bilan de progrès automatisé basé sur l'usage de l'application Poppins.
-        Il ne remplace pas un diagnostic médical professionnel.
-    </p>
-</footer>
-
 <script>
     // Gestion de la sélection des bilans
     const bilanItems = document.querySelectorAll('.bilan-item');
@@ -2958,12 +2951,12 @@
     const bilanPeriod = document.getElementById('bilan-period');
 
     const bilans = {
-        'periode-6': { title: 'Dernier bilan', period: 'Période du 19 janvier au 17 février 2026 — Dwight - CE1' },
-        'periode-5': { title: 'Cinquième bilan', period: 'Période du 20 décembre au 18 janvier 2026 — Dwight - CE1' },
-        'periode-4': { title: 'Quatrième bilan', period: 'Période du 20 novembre au 19 décembre 2025 — Dwight - CE1' },
-        'periode-3': { title: 'Troisième bilan', period: 'Période du 21 octobre au 19 novembre 2025 — Dwight - CE1' },
-        'periode-2': { title: 'Deuxième bilan', period: 'Période du 21 septembre au 20 octobre 2025 — Dwight - CE1' },
-        'periode-1': { title: 'Premier bilan', period: 'Période du 22 août au 20 septembre 2025 — Dwight - CE1' },
+        'periode-6': { title: 'Dernier bilan', period: 'Période du 19 janvier au 17 février 2026' },
+        'periode-5': { title: 'Cinquième bilan', period: 'Période du 20 décembre au 18 janvier 2026' },
+        'periode-4': { title: 'Quatrième bilan', period: 'Période du 20 novembre au 19 décembre 2025' },
+        'periode-3': { title: 'Troisième bilan', period: 'Période du 21 octobre au 19 novembre 2025' },
+        'periode-2': { title: 'Deuxième bilan', period: 'Période du 21 septembre au 20 octobre 2025' },
+        'periode-1': { title: 'Premier bilan', period: 'Période du 22 août au 20 septembre 2025' },
         'edge-premier-mois': { title: 'Edge case : Premier mois', period: 'Le parent vient de s\'inscrire, pas encore de bilan complet' },
         'edge-sans-donnees': { title: 'Edge case : Sections sans données', period: 'Certaines sections n\'ont pas assez de données pour s\'afficher' },
         'edge-programme-termine': { title: 'Edge case : Programme terminé', period: 'L\'enfant a complété 100% du programme Poppins' },
@@ -3085,10 +3078,10 @@
 
     // Labels pour l'affichage
     const observationLabels = {
-        'progres-nets': { text: 'Des progrès nets', emoji: '🚀', color: 'bg-green-light/30 text-green' },
-        'legers-progres': { text: 'De légers progrès', emoji: '📈', color: 'bg-green-light/30 text-green' },
-        'pas-changement': { text: 'Pas de changement', emoji: '➡️', color: 'bg-neutral-light text-neutral-medium' },
-        'difficultes': { text: 'Des difficultés', emoji: '😓', color: 'bg-red/10 text-red' }
+        'progres-nets': { text: 'Des progrès nets', emoji: '🚀' },
+        'legers-progres': { text: 'De légers progrès', emoji: '📈' },
+        'pas-changement': { text: 'Pas de changement', emoji: '➡️' },
+        'difficultes': { text: 'Des difficultés', emoji: '😓' }
     };
 
     const lectureLabels = {
@@ -3233,7 +3226,7 @@
             <p class="text-xs text-neutral-medium mb-4">Questionnaire du ${today}</p>
 
             <!-- Observation -->
-            <div class="p-3 rounded-xl ${obs.color} flex items-center gap-3 mb-4">
+            <div class="p-3 rounded-xl bg-neutral-light flex items-center gap-3 mb-4">
                 <span class="text-2xl">${obs.emoji}</span>
                 <div>
                     <p class="text-xs opacity-70">Vous avez observe chez Dwight</p>
@@ -3274,6 +3267,33 @@
         init();
     }
 })();
+</script>
+
+<!-- Tooltip repositionnement -->
+<script>
+document.querySelectorAll('.tooltip-wrapper').forEach(wrapper => {
+    wrapper.addEventListener('mouseenter', () => {
+        const tooltip = wrapper.querySelector('.tooltip-text');
+        if (!tooltip) return;
+        // Reset au centrage par défaut
+        tooltip.style.left = '50%';
+        tooltip.style.right = 'auto';
+        tooltip.style.transform = 'translateX(-50%)';
+        // Vérifier les limites du viewport
+        requestAnimationFrame(() => {
+            const rect = tooltip.getBoundingClientRect();
+            if (rect.right > window.innerWidth - 16) {
+                tooltip.style.left = 'auto';
+                tooltip.style.right = '0';
+                tooltip.style.transform = 'none';
+            } else if (rect.left < 16) {
+                tooltip.style.left = '0';
+                tooltip.style.right = 'auto';
+                tooltip.style.transform = 'none';
+            }
+        });
+    });
+});
 </script>
 
 <!-- Bouton flottant retour (masque sur mobile) -->
